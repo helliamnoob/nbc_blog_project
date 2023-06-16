@@ -1,20 +1,16 @@
 const mongoose = require("mongoose");
 
-const postSchema = new mongoose.Schema({
-    postNum: {
-        type: Number,
-        required: true,
 
-    },
+const postSchema = new mongoose.Schema({
     title: {
         type: String,
         required: true,
     },
-    name: {
+    user: {
         type: String,
         required: true,
     },
-    text: {
+    content: {
         type: String,
         required: true,
     },
@@ -28,5 +24,13 @@ const postSchema = new mongoose.Schema({
     }
 
 })
+// Duplicate the ID field.
+postSchema.virtual('postId').get(function(){
+    return this._id.toHexString();
+});
+// Ensure virtual fields are serialised.
+postSchema.set('toJSON', {
+    virtuals: true
+});
 
 module.exports = mongoose.model("Posts", postSchema);

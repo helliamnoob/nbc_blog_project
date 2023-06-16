@@ -2,17 +2,9 @@ const express = require("express");
 
 const router = express.Router();
 
-// const comments=[
-//     {
-//         postNum: 1,
-//         name: "jj",
-//         comments: "ss",
-//         pssowrd: 1234,
-//     }
-// ]
 //comment 목록 조회 api
 const Comments = require("../schemas/comment.js");
-router.get("/posts/:postNum/comments", async (req,res) => {
+router.get("/comments/:_id", async (req,res) => {
     const {number} = req.params;
     const [commentList] = await Comments.find({number});
     res.json({commentList});
@@ -28,7 +20,7 @@ router.post("/posts/:postNum/comments/",async (req,res) =>{
     const createdComments = await Comments.create({number, name, text, password});
     res.json({comments: createdComments});
 });
-router.put("/posts/:postNum", async (req, res) => {
+router.put("/comments/:_id", async (req, res) => {
     const {postNum} = req.params;
     const {text} = req.body;
     const {password} = req.body;

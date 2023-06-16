@@ -5,25 +5,26 @@ const router = express.Router();
 //게시글 목록 조회
 router.get("/posts", async (req, res) => {
 
-    const posts = await Posts.find();
+    const [data] = await Posts.find();
 
     res.json({
 
-        posts,
+        data
     });
 
 });
-//comment 상세 조회 api
-router.get("/posts/:postNum", (req,res)=>{
-    const {postNum} = req.params;
-    const [detail] = comments.filter((comments) => comments.postNum === Number(postNum));
-    res.json({detail});
+//게시글 상세 조회 api
+router.get("/posts/:_id", async (req,res)=>{
+    const {_id} = req.params;
+    const [data] = await Posts.find({_id});
+    res.json({data})
+
 });
-//게시물 
+//게시물 생성
 const Posts = require("../schemas/post.js");
 router.post("/posts/", async (req, res) => {
-    const {postNum, title, name, text, password} = req.body;
-    const posts = await Posts.find({ postNum });
+    const {title, user, content, password} = req.body;
+    const posts = await Posts.find({ title });
 
     let now = dayjs();
     let date = now.format('YYYY-MM-DD');
@@ -32,12 +33,10 @@ router.post("/posts/", async (req, res) => {
       return res.status(400).json({ success: false, errorMessage: "이미 있는 데이터입니다." });
     }
   
-    const createdPosts = await Posts.create({ postNum, title, name, text, password, date });
+    const createdPosts = await Posts.create({ title, user, content, password, date });
   
-    res.json({ posts: createdPosts });
+    res.status(200).json({ message: "게시글을 생성하였습니다."});
     
-  
-  
 });
 // 타이틀로 목록 조회
 router.get("/posts/:title", (req, res)=>{
@@ -61,9 +60,9 @@ router.get("/posts/:title", (req, res)=>{
 
 // 작성자명으로 조회 
 
-router.get("/posts/:name", (req, res)=>{
+router.get("/posts/:user", (req, res)=>{
 
-    const {name} = req.params;
+    const {user} = req.params;
 
 
     res.json({
@@ -71,7 +70,7 @@ router.get("/posts/:name", (req, res)=>{
 
         detail: Posts.filter((item)=>{
 
-            return item.name === name;
+            return item.user === user;
 
         })[0],
 
@@ -102,14 +101,14 @@ router.get("/posts/:date", (req, res)=>{
 // 게시글 수정 API
 // - API를 호출할 때 입력된 비밀번호를 비교하여 동일할 때만 글이 수정되게 하기
 
-router.put("/posts/:postNum", async (req, res) => {
-    const {postNum} = req.params;
-    const {text} = req.body;
-    const {password} = req.body;
+router.put("/posts/:_id", async (req, res) => {
+    const {_id} = req.params;
+    const {user,title, content, password} = req.body;
+
 
     // 없을 때
 
-    const [existPosts] = await Posts.find({postNum});
+    const [existPosts] = await Posts.find({_id});
     
     if (!existPosts){
         return res.status(400).json({ success: false, errorMessage: "해당 게시물이 없습니다."});
@@ -123,7 +122,7 @@ router.put("/posts/:postNum", async (req, res) => {
 
     }
     
-    await Posts.updateOne({postNum}, {$set: {text}});
+    await Posts.updateOne({_id}, {$set: {user,title,content}});
 
 
     res.status(200).json({ success: true});
