@@ -7,7 +7,7 @@ mongoose.connection.on("error", err => {
 
 const connect = async () => {
     await mongoose
-    .connect("mongodb://127.0.0.1:27017/mongodb_prac",{ connectTimeoutMS: 20000 })
+    .connect("mongodb://127.0.0.1:27017/blog_prac",{ connectTimeoutMS: 20000 })
     .then(() => console.log('몽고디비 연결!'))
     .catch(err => console.log(err));
 };
