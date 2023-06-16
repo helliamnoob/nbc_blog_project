@@ -1,0 +1,25 @@
+{
+  "name": "blog",
+  "version": "1.0.0",
+  "description": "내배캠 node개인 블로그만들기 과제",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/helliamnoob/nbc_blog_project.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/helliamnoob/nbc_blog_project/issues"
+  },
+  "homepage": "https://github.com/helliamnoob/nbc_blog_project#readme",
+  "dependencies": {
+    "dayjs": "^1.11.8",
+    "dotenv": "^16.1.4",
+    "express": "^4.18.2",
+    "mongoose": "^7.3.0"
+  }
+}
