@@ -4,7 +4,14 @@ const userSchema = require("../schemas/user.js")
 
 //내정보 조회
 router.get("/users/me", async(req,res)=> {
-
+    console.log(res.locals.user);
+    // const {email, nickname} = res.locals.user;
+    // res.status(200).json({
+    //     user:{
+    //         email: email,
+    //         nickname: nickname,
+    //     }
+    // });
 });
 
 
