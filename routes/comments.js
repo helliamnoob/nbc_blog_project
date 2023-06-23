@@ -1,6 +1,5 @@
 const express = require("express");
 const dayjs = require("dayjs");
-const Posts = require("../schemas/post.js");
 const Comments = require("../schemas/comment.js");
 const router = express.Router();
 

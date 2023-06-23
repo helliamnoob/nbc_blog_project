@@ -46,7 +46,7 @@ router.get("/posts/:title", (req, res) => {
   const { title } = req.params;
 
   res.json({
-    detail: posts.filter((item) => {
+    detail: Posts.filter((item) => {
       return item.title === title;
     })[0],
   });
