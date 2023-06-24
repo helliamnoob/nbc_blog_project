@@ -2,6 +2,7 @@ const express = require("express");
 const dayjs = require("dayjs");
 const router = express.Router();
 const Posts = require("../schemas/post.js");
+const authMiddelware = require("../middlewares/auth-middelware.js");
 
 //게시글 목록 조회
 router.get("/posts", async (req, res) => {
@@ -17,10 +18,12 @@ router.get("/posts/:_id", async (req, res) => {
   const [data] = await Posts.find({ _id });
   res.json({ data });
 });
+
 //게시물 생성
-router.post("/posts/", async (req, res) => {
+router.post("/posts/", authMiddelware, async (req, res) => {
+  const {userId} = res.locals.user;
   const { title, user, content, password } = req.body;
-  const posts = await Posts.find({ title });
+  const posts = await Posts.find({ title, userId });
 
   let now = dayjs();
   let date = now.format("YYYY-MM-DD");
@@ -32,6 +35,7 @@ router.post("/posts/", async (req, res) => {
   }
 
   const createdPosts = await Posts.create({
+    userId,
     title,
     user,
     content,
@@ -79,13 +83,14 @@ router.get("/posts/:date", (req, res) => {
 // 게시글 수정 API
 // - API를 호출할 때 입력된 비밀번호를 비교하여 동일할 때만 글이 수정되게 하기
 
-router.put("/posts/:_id", async (req, res) => {
+router.put("/posts/:_id", authMiddelware, async (req, res) => {
+  const {userId} = res.locals.user;
   const { _id } = req.params;
   const { user, title, content, password } = req.body;
 
   // 없을 때
 
-  const [existPosts] = await Posts.find({ _id });
+  const [existPosts] = await Posts.find({ _id, userId});
 
   if (!existPosts) {
     return res
@@ -108,11 +113,12 @@ router.put("/posts/:_id", async (req, res) => {
 // 게시글 삭제 API
 // API를 호출할 때 입력된 비밀번호를 비교하여 동일할 때만 글이 삭제되게 하기
 
-router.delete("/posts/:_id", async (req, res) => {
+router.delete("/posts/:_id", authMiddelware, async (req, res) => {
+  const {userId} = res.locals.user;
   const { _id } = req.params;
   const password = req.body.password;
 
-  const [existPosts] = await Posts.find({ _id });
+  const [existPosts] = await Posts.find({ userId, _id });
 
   if (!existPosts) {
     return res
@@ -120,7 +126,7 @@ router.delete("/posts/:_id", async (req, res) => {
       .json({ success: false, errorMessage: "게시물 조회에 실패하였습니다." });
   } else {
     if (password === existPosts.password) {
-      await Posts.deleteOne({ _id });
+      await Posts.deleteOne({ userId, _id });
     } else {
       return res
         .status(400)

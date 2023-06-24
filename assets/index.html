@@ -158,12 +158,11 @@
     ></script>
 
     <script src="/api.js"></script>
-
     <script>
       if (localStorage.getItem("token")) {
         getSelf(function () {
           alert("이미 로그인이 되어있습니다. 상품 페이지로 이동합니다.");
-          window.location.replace("/goods.html");
+          window.location.replace("/home.html");
         });
       }
 
@@ -186,7 +185,6 @@
           },
         });
       }
-
       function customAlert(text) {
         $("#alertText").text(text);
         $("#alertModal").modal("show");

@@ -1,3 +1,4 @@
+require('dotenv')
 const jwt = require("jsonwebtoken");
 const User = require("../schemas/user");
 
@@ -14,7 +15,7 @@ module.exports = async (req, res, next) => {
   }
 
   try {
-    const { userId } = jwt.verify(authToken, "customized-secret-key");
+    const { userId } = jwt.verify(authToken, "custom-secret-key");
     const user = await User.findById(userId);
     res.locals.user = user;
     next();

@@ -1,17 +1,17 @@
 const express = require("express");
 const router = express.Router();
-const userSchema = require("../schemas/user.js")
+const userSchema = require("../schemas/user.js");
+const authMiddelware = require("../middlewares/auth-middelware.js");
 
 //내정보 조회
-router.get("/users/me", async(req,res)=> {
-    console.log(res.locals.user);
-    // const {email, nickname} = res.locals.user;
-    // res.status(200).json({
-    //     user:{
-    //         email: email,
-    //         nickname: nickname,
-    //     }
-    // });
+router.get("/users/me", authMiddelware, async(req,res)=> {
+    const {email, nickname} = res.locals.user;
+    res.status(200).json({
+        user:{
+            email: email,
+            nickname: nickname,
+        }
+    });
 });
 
 
