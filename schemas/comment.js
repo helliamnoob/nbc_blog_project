@@ -2,21 +2,17 @@ const { ObjectId } = require("mongodb/lib/bson");
 const mongoose = require("mongoose");
 
 const commentSchema = new mongoose.Schema({
-  _postId: {
+  userId: {
+    type: String,
+    required: true,
+  },
+  postId: {
     type: ObjectId,
     required: true,
     ref: "Posts",
   },
-  user: {
-    type: String,
-    required: true,
-  },
   content: {
     type: String,
-    required: true,
-  },
-  password: {
-    type: Number,
     required: true,
   },
   date: {

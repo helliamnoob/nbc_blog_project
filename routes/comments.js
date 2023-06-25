@@ -1,77 +1,70 @@
 const express = require("express");
 const dayjs = require("dayjs");
 const Comments = require("../schemas/comment.js");
+const authMiddelware = require("../middlewares/auth-middelware.js");
 const router = express.Router();
 
 //comment 목록 조회 api
-router.get("/comments/:_postId", async (req, res) => {
-  const { _postId } = req.params;
-  const commentList = await Comments.find({ _postId });
+router.get("/posts/:postId/comments", async (req, res) => {
+  const { postId } = req.params;
+  const commentList = await Comments.find({ postId });
   res.json({ commentList });
 });
 
 //comment 생성
-router.post("/comments/:_postId", async (req, res) => {
-  const { _postId } = req.params;
-  const { user, content, password } = req.body;
+router.post("/posts/:postId/comments", authMiddelware, async (req, res) => {
+  const {userId} = res.locals.user;
+  const { postId } = req.params;
+  const { content } = req.body;
 
   let now = dayjs();
   let date = now.format("YYYY-MM-DD");
-
-  const createdComments = await Comments.create({
-    _postId,
-    user,
-    content,
-    password,
-    date,
-  });
-  res.status(200).json({ message: "댓글을 생성하였습니다." });
+  if(content === null)
+  {
+    res.status(404).json({errorMessage: "게시글이 존재하지 않습니다."})
+  }
+  else {
+    const createdComments = await Comments.create({
+      postId,
+      userId,
+      content,
+      date,
+    });
+  }
+  res.status(201).json({ message: "댓글을 작성하였습니다." });
 });
 
 //comment 수정
-router.put("/comments/:_id", async (req, res) => {
-  const { _id } = req.params;
-  const { content, password } = req.body;
+router.put("/posts/:postId/comments/:commentId", authMiddelware, async (req, res) => {
+  const {userId} = res.locals.user;
+  const { postId, commentId } = req.params;
+  const { content } = req.body;
 
-  const [existComments] = await Comments.find({ _id });
+  const [existComments] = await Comments.find({ postId, userId });
 
   if (!existComments) {
     return res
       .status(400)
       .json({ success: false, errorMessage: "해당 게시물이 없습니다." });
   }
-
-  if (Number(password) === Number(existComments.password)) {
-    await Comments.updateOne({ _id }, { $set: { content } });
-  } else {
-    return res
-      .status(400)
-      .json({ success: false, errorMessage: "비밀번호가 틀립니다." });
-  }
-
+  await Comments.updateOne({userId, commentId }, { $set: { content } });
   res.status(200).json({ message: "댓글을 수정하였습니다." });
 });
+
 // 게시글 삭제 API
 // API를 호출할 때 입력된 비밀번호를 비교하여 동일할 때만 글이 삭제되게 하기
+router.delete("/posts/:postId/comments/:commentId", authMiddelware, async (req, res) => {
+  const {userId} = res.locals.user;
+  const { postId, commentId} = req.params;
 
-router.delete("/comments/:_id", async (req, res) => {
-  const { _id } = req.params;
-  const { password } = req.body;
-
-  const [existComments] = await Comments.find({ _id });
+  const [existComments] = await Comments.find({ postId, userId});
 
   if (!existComments) {
     return res
-      .status(400)
-      .json({ success: false, errorMessage: "댓글 조회에 실패하였습니다." });
+      .status(404)
+      .json({ success: false, errorMessage: "댓글이 존재하지 않습니다." });
   } else {
-    if (Number(password) === Number(existComments.password)) {
-      await Comments.deleteOne({ _id });
-    } else {
-      return res
-        .status(400)
-        .json({ success: false, errorMessage: "비밀번호가 틀립니다." });
-    }
+      await Comments.deleteOne({ commentId, userId});
   }
   res.status(200).json({ message: "댓글을 삭제하였습니다." });
 });

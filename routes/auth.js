@@ -5,10 +5,10 @@ const router = express.Router();
 const User = require("../schemas/user");
 
 // 로그인 API
-router.post("/auth", async (req, res) => {
-  const { email, password } = req.body;
+router.post("/login", async (req, res) => {
+  const { nickname, password } = req.body;
 
-  const user = await User.findOne({ email });
+  const user = await User.findOne({ nickname });
 
   if (!user || password !== user.password) {
     res.status(400).json({

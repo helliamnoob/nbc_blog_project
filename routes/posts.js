@@ -22,29 +22,26 @@ router.get("/posts/:_id", async (req, res) => {
 //게시물 생성
 router.post("/posts/", authMiddelware, async (req, res) => {
   const {userId} = res.locals.user;
-  const { title, user, content, password } = req.body;
+  const { title, content } = req.body;
   const posts = await Posts.find({ title, userId });
 
   let now = dayjs();
   let date = now.format("YYYY-MM-DD");
 
-  if (posts.length) {
-    return res
-      .status(400)
-      .json({ success: false, errorMessage: "이미 있는 데이터입니다." });
+  if(title,content === null){
+    res.status(412).json({ errorMessage: "데이터 형식이 올바르지 않습니다."})
   }
 
   const createdPosts = await Posts.create({
     userId,
     title,
-    user,
     content,
-    password,
     date,
   });
 
-  res.status(200).json({ message: "게시글을 생성하였습니다." });
+  res.status(200).json({ message: "게시글을 작성에 성공하였습니다." });
 });
+
 // 타이틀로 목록 조회
 router.get("/posts/:title", (req, res) => {
   const { title } = req.params;
@@ -86,7 +83,7 @@ router.get("/posts/:date", (req, res) => {
 router.put("/posts/:_id", authMiddelware, async (req, res) => {
   const {userId} = res.locals.user;
   const { _id } = req.params;
-  const { user, title, content, password } = req.body;
+  const { title, content } = req.body;
 
   // 없을 때
 
@@ -98,17 +95,9 @@ router.put("/posts/:_id", authMiddelware, async (req, res) => {
       .json({ success: false, errorMessage: "해당 게시물이 없습니다." });
   }
 
-  // 있을 때
+  await Posts.updateOne({ userId,_id }, { $set: { title, content } });
 
-  if (Number(password) !== Number(existPosts.password)) {
-    return res
-      .status(400)
-      .json({ success: false, errorMessage: "비밀번호가 틀립니다." });
-  }
-
-  await Posts.updateOne({ _id }, { $set: { user, title, content } });
-
-  res.status(200).json({ success: true });
+  res.status(200).json({ message: "게시글을 수정하였습니다." });
 });
 // 게시글 삭제 API
 // API를 호출할 때 입력된 비밀번호를 비교하여 동일할 때만 글이 삭제되게 하기
@@ -116,7 +105,6 @@ router.put("/posts/:_id", authMiddelware, async (req, res) => {
 router.delete("/posts/:_id", authMiddelware, async (req, res) => {
   const {userId} = res.locals.user;
   const { _id } = req.params;
-  const password = req.body.password;
 
   const [existPosts] = await Posts.find({ userId, _id });
 
@@ -125,12 +113,8 @@ router.delete("/posts/:_id", authMiddelware, async (req, res) => {
       .status(400)
       .json({ success: false, errorMessage: "게시물 조회에 실패하였습니다." });
   } else {
-    if (password === existPosts.password) {
+    if (existPosts.length) {
       await Posts.deleteOne({ userId, _id });
-    } else {
-      return res
-        .status(400)
-        .json({ success: false, errorMessage: "비밀번호가 틀립니다." });
     }
   }
   res.status(200).json({ message: "게시글을 삭제하였습니다." });

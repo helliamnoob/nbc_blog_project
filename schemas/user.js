@@ -1,11 +1,6 @@
 const mongoose = require("mongoose");
 
 const UserSchema = new mongoose.Schema({
-    email:{
-        type: String,
-        required: true,
-        unique: true, //동일한 이메일 존재 할 수 없음
-    },
     nickname:{
         type: String,
         required: true,
